@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>我的资产 - 星彩 FANCLUB</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="data/mock.js"></script>
+  <script src="assets/js/transitions.js"></script>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="user-center.html" class="back-btn">‹</a>
+    <h1>我的资产</h1>
+    <a href="qr-code.html" style="color:white;font-size:22px;text-decoration:none">📱</a>
+  </div>
+
+  <div class="page-enter">
+
+    <!-- 钱包余额 -->
+    <div style="padding:16px">
+      <div class="wallet-card">
+        <div class="deco">💰</div>
+        <div style="font-size:13px;opacity:0.85;margin-bottom:4px">钱包余额</div>
+        <div class="wallet-amount"><span class="yen">¥</span><span id="u-balance">--</span></div>
+        <div style="font-size:12px;opacity:0.75;margin-top:6px">可用于购买平台所有商品</div>
+        <div style="margin-top:12px">
+          <div style="background:rgba(255,255,255,0.25);border-radius:10px;padding:8px 20px;font-size:13px;font-weight:700;display:inline-block;cursor:pointer">+ 充值余额</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 代金券 -->
+    <div style="padding:0 16px">
+      <div class="section-title" style="margin-bottom:14px">🎫 商家代金券</div>
+      <div id="voucher-list" style="display:flex;flex-direction:column;gap:14px"></div>
+    </div>
+
+    <!-- 说明 -->
+    <div style="margin:20px 16px">
+      <div class="card card-body" style="background:linear-gradient(135deg,#F3E8FF,#FFF0F9)">
+        <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:6px">📌 代金券使用说明</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.9">
+          • 代金券只能用于对应商家的商品核销<br>
+          • 线下活动现场出示「核销二维码」给工作人员扫码<br>
+          • 工作人员选择核销商品后确认即可扣减
+        </div>
+      </div>
+    </div>
+
+    <!-- 核销码入口 -->
+    <div style="padding:0 16px;margin-bottom:16px">
+      <a href="qr-code.html" class="btn-primary">📱 出示核销二维码</a>
+    </div>
+
+  </div>
+
+  <div class="safe-bottom"></div>
+
+  <nav class="bottom-nav">
+    <a href="index.html"><span class="icon">🏪</span>商城</a>
+    <a href="calendar.html"><span class="icon">📅</span>活动</a>
+    <a href="user-center.html" class="active"><span class="icon">👤</span>我的</a>
+  </nav>
+
+  <script>
+    const u = MOCK.currentUser;
+    document.getElementById('u-balance').textContent = u.balance.toFixed(2);
+
+    const el = document.getElementById('voucher-list');
+    const grads = ['var(--grad)', 'var(--grad2)', 'var(--grad3)',
+      'linear-gradient(135deg,#34D399,#38BDF8)'];
+
+    u.vouchers.forEach((v, i) => {
+      // 获取该商家商品列表
+      const products = MOCK.products.filter(p => p.merchantId === v.merchantId);
+      const merchant = MOCK.merchants.find(m => m.id === v.merchantId);
+      const moji = merchant ? merchant.avatar : '🎫';
+
+      el.innerHTML += `
+        <div style="border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg)">
+          <!-- 券主体 -->
+          <div style="background:${grads[i % grads.length]};padding:20px;color:white;position:relative;overflow:hidden">
+            <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:72px;opacity:0.15">${moji}</div>
+            <div style="font-size:12px;opacity:0.85;margin-bottom:4px">商家代金券 · ${v.merchantName}</div>
+            <div style="font-size:48px;font-weight:900;line-height:1">${v.count}</div>
+            <div style="font-size:14px;opacity:0.85;margin-top:4px">张可核销</div>
+          </div>
+          <!-- 券底部 - 可核销商品 -->
+          <div style="background:white;padding:14px 16px;border-top:2px dashed rgba(168,85,247,0.2)">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px">可核销商品：</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              ${products.map(p => `<span style="background:#F3E8FF;color:var(--purple);font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px">${p.emoji} ${p.name}</span>`).join('')}
+            </div>
+          </div>
+        </div>`;
+    });
+
+    if (!u.vouchers.length) {
+      el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted)">
+        <div style="font-size:48px;margin-bottom:8px">🎫</div>
+        <div>暂无代金券</div>
+        <a href="index.html" style="color:var(--pink);font-weight:600">去商城购买</a>
+      </div>`;
+    }
+  </script>
+</body>
+</html>

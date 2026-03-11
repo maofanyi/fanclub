@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>支付成功 - 星彩 FANCLUB</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="data/mock.js"></script>
+  <script src="assets/js/transitions.js"></script>
+  <style>
+    @keyframes float-up {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .info-row { display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px; }
+    .info-row:last-child { border-bottom:none; }
+    .confetti { position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:999; }
+    .c-item { position:absolute;top:-20px;font-size:20px;animation:fall linear forwards; }
+    @keyframes fall {
+      to { top:110vh; transform:rotate(360deg); opacity:0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 彩纸动画 -->
+  <div class="confetti" id="confetti"></div>
+
+  <div style="padding:40px 24px 20px;text-align:center" class="page-enter">
+
+    <!-- 成功图标 -->
+    <div class="success-circle">✅</div>
+
+    <div style="font-size:26px;font-weight:900;margin-bottom:8px">支付成功 🎉</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:32px">资产已到账，快去线下活动核销吧！</div>
+
+    <!-- 订单摘要 -->
+    <div class="card card-body" style="margin-bottom:20px;text-align:left;animation:float-up 0.4s 0.2s both">
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+        <span>📋</span> 订单详情
+      </div>
+      <div class="info-row">
+        <span style="color:var(--muted)">商品名称</span>
+        <span id="o-name" style="font-weight:600">--</span>
+      </div>
+      <div class="info-row">
+        <span style="color:var(--muted)">购买数量</span>
+        <span id="o-qty">--</span>
+      </div>
+      <div class="info-row">
+        <span style="color:var(--muted)">支付金额</span>
+        <span id="o-total" style="font-weight:700;color:var(--pink)">¥--</span>
+      </div>
+      <div class="info-row">
+        <span style="color:var(--muted)">支付方式</span>
+        <span id="o-pay">--</span>
+      </div>
+      <div class="info-row">
+        <span style="color:var(--muted)">订单编号</span>
+        <span id="o-id" style="font-size:12px;color:var(--muted)">--</span>
+      </div>
+    </div>
+
+    <!-- 资产到账提示 -->
+    <div style="background:linear-gradient(135deg,#F3E8FF,#FFF0F9);border-radius:18px;padding:20px;margin-bottom:24px;animation:float-up 0.4s 0.35s both">
+      <div style="font-size:16px;font-weight:800;margin-bottom:4px">🎫 资产已到账！</div>
+      <div id="voucher-info" style="font-size:14px;color:var(--purple);margin-bottom:8px">--</div>
+      <div style="font-size:13px;color:var(--muted)">前往「我的资产」查看，到活动现场出示核销码领取实物</div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div style="display:flex;flex-direction:column;gap:12px;animation:float-up 0.4s 0.5s both">
+      <a href="qr-code.html" class="btn-primary">🎫 立即查看核销二维码</a>
+      <a href="my-assets.html" class="btn-secondary">查看我的资产</a>
+      <a href="index.html" style="display:block;text-align:center;color:var(--muted);font-size:14px;padding:10px;text-decoration:none">返回商城</a>
+    </div>
+
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const pid = params.get('id') || 'p001';
+    const qty = parseInt(params.get('qty')) || 1;
+    const payMethod = params.get('pay') || 'wallet';
+    const product = MOCK.products.find(p => p.id === pid);
+
+    const payNames = { wallet:'钱包余额', alipay:'支付宝', wechat:'微信支付' };
+    const orderId = 'ord' + Date.now().toString().slice(-10);
+
+    if (product) {
+      document.getElementById('o-name').textContent = product.emoji + ' ' + product.name;
+      document.getElementById('o-qty').textContent = qty + ' 件';
+      document.getElementById('o-total').textContent = '¥' + (product.price * qty);
+      document.getElementById('o-pay').textContent = payNames[payMethod] || payMethod;
+      document.getElementById('o-id').textContent = orderId;
+      document.getElementById('voucher-info').textContent =
+        product.emoji + ' ' + product.name + ' ×' + qty + ' 已加入您的资产';
+    }
+
+    // 彩纸动画
+    const emojis = ['🌸','⭐','💖','✨','🌈','🎊','💜','💗'];
+    const c = document.getElementById('confetti');
+    for (let i = 0; i < 20; i++) {
+      const el = document.createElement('div');
+      el.className = 'c-item';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = Math.random() * 100 + '%';
+      el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      el.style.animationDelay = (Math.random() * 1.5) + 's';
+      c.appendChild(el);
+    }
+  </script>
+</body>
+</html>

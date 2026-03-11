@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>我的订单 - 星彩 FANCLUB</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="data/mock.js"></script>
+  <script src="assets/js/transitions.js"></script>
+  <style>
+    .tab-bar{display:flex;background:white;border-bottom:1px solid var(--border);position:sticky;top:56px;z-index:10;}
+    .tab{flex:1;padding:12px;text-align:center;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;}
+    .tab.active{color:var(--pink);border-bottom:3px solid var(--pink);}
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="user-center.html" class="back-btn">‹</a>
+    <h1>我的订单</h1>
+    <div style="width:32px"></div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="filterOrders('all',this)">全部</div>
+    <div class="tab" onclick="filterOrders('paid',this)">已付款</div>
+    <div class="tab" onclick="filterOrders('verified',this)">已核销</div>
+  </div>
+
+  <div id="order-list" class="page-enter" style="padding:16px"></div>
+
+  <div class="safe-bottom"></div>
+
+  <nav class="bottom-nav">
+    <a href="index.html"><span class="icon">🏪</span>商城</a>
+    <a href="calendar.html"><span class="icon">📅</span>活动</a>
+    <a href="user-center.html" class="active"><span class="icon">👤</span>我的</a>
+  </nav>
+
+  <script>
+    const statusMap   = { paid:'已付款', verified:'已核销', pending:'待付款' };
+    const statusClass = { paid:'status-paid', verified:'status-verified', pending:'status-pending' };
+    const payIcons    = { wallet:'💰 钱包余额', alipay:'🔵 支付宝', wechat:'🟢 微信支付' };
+
+    function renderOrders(list) {
+      const el = document.getElementById('order-list');
+      el.innerHTML = '';
+      if (!list.length) {
+        el.innerHTML = '<div style="text-align:center;padding:60px;color:var(--muted)"><div style="font-size:48px;margin-bottom:8px">📦</div>暂无订单</div>';
+        return;
+      }
+      list.forEach(o => {
+        el.innerHTML += `
+          <div class="order-card" style="margin-bottom:16px">
+            <div class="order-header">
+              <div>
+                <div style="font-size:12px;color:var(--muted)">${o.merchantName}</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:1px">${o.id}</div>
+              </div>
+              <span class="order-status ${statusClass[o.status]}">${statusMap[o.status]}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)">
+              <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#FFF0F9,#F3E8FF);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">${o.emoji}</div>
+              <div style="flex:1">
+                <div style="font-weight:700;font-size:15px">${o.productName}</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:3px">数量：${o.qty} 件</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:17px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">¥${o.total}</div>
+              </div>
+            </div>
+            <div style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:12px;color:var(--muted)">${o.paidAt} · ${payIcons[o.payMethod] || o.payMethod}</div>
+              ${o.status==='paid' ? `<a href="qr-code.html" style="background:var(--grad);color:white;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;text-decoration:none">出示核销码</a>` :
+                `<span style="background:#F3E8FF;color:var(--purple);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600">已核销</span>`}
+            </div>
+          </div>`;
+      });
+    }
+
+    function filterOrders(status, tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const list = status === 'all' ? MOCK.orders : MOCK.orders.filter(o => o.status === status);
+      renderOrders(list);
+    }
+
+    renderOrders(MOCK.orders);
+  </script>
+</body>
+</html>

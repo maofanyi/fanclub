@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>扫码核销 - 工作人员</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../data/mock.js"></script>
+  <script src="../assets/js/transitions.js"></script>
+  <style>
+    body { background: #1A0A2E; }
+    .staff-top {
+      background: var(--grad2);
+      padding: 16px 20px;
+      display: flex; align-items: center; gap: 12px;
+      color: white;
+    }
+    .scan-area {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+    }
+    .scan-hint { color: rgba(255,255,255,0.6); font-size: 13px; margin: 20px 0; text-align: center; line-height: 1.7; }
+    .or-divider { color: rgba(255,255,255,0.3); font-size: 12px; margin: 16px 0; display:flex;align-items:center;gap:12px; }
+    .or-divider::before,.or-divider::after { content:'';flex:1;height:1px;background:rgba(255,255,255,0.15); }
+  </style>
+</head>
+<body>
+
+  <!-- 工作人员顶栏 -->
+  <div class="staff-top">
+    <a href="../user-center.html" class="back-btn">‹</a>
+    <div>
+      <div style="font-weight:800;font-size:15px">核销工作台</div>
+      <div style="font-size:11px;opacity:0.8">星彩 Official 周边店 · 核销点1</div>
+    </div>
+    <div style="margin-left:auto;background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700">👷 工作人员</div>
+  </div>
+
+  <!-- 步骤指示器 -->
+  <div style="background:#26104A">
+    <div class="step-bar" style="background:transparent">
+      <div class="step active"><div class="step-dot">1</div><div class="step-label" style="color:var(--sky)">扫码</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">2</div><div class="step-label">查看资产</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">3</div><div class="step-label">选择商品</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">4</div><div class="step-label">预览</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">5</div><div class="step-label">完成</div></div>
+    </div>
+  </div>
+
+  <div class="scan-area">
+    <!-- 扫描框 -->
+    <div class="scan-box">
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+      <div class="scan-line"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.25);font-size:13px">对准用户二维码</div>
+    </div>
+
+    <p class="scan-hint">
+      请用户打开「核销二维码」页面<br>
+      将二维码对准扫描框中央
+    </p>
+
+    <div class="or-divider">演示模式</div>
+
+    <!-- Demo 模拟扫码成功按钮 -->
+    <button class="btn-primary btn-staff" style="width:260px;font-size:15px" onclick="simulateScan()">
+      📱 模拟扫码成功
+    </button>
+
+    <div style="color:rgba(255,255,255,0.4);font-size:12px;text-align:center;margin-top:16px;line-height:1.7">
+      演示模式：点击上方按钮<br>模拟扫描到用户「小星星」的二维码
+    </div>
+  </div>
+
+  <!-- 扫码中动画遮罩 -->
+  <div id="scanning-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px">
+    <div style="font-size:48px;animation:spin 1s linear infinite">⭐</div>
+    <div style="color:white;font-size:15px;font-weight:700">识别中...</div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+  </div>
+
+  <script>
+    function simulateScan() {
+      const overlay = document.getElementById('scanning-overlay');
+      overlay.style.display = 'flex';
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        _navigate('user-assets.html?uid=u001');
+      }, 1200);
+    }
+  </script>
+</body>
+</html>

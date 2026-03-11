@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>用户中心 - 星彩 FANCLUB</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="data/mock.js"></script>
+  <script src="assets/js/transitions.js"></script>
+</head>
+<body>
+
+  <!-- 用户信息头部 -->
+  <div class="hero-banner" style="padding-bottom:56px">
+    <div class="deco">👤</div>
+    <div style="display:flex;align-items:center;gap:16px;position:relative;z-index:1">
+      <div class="user-avatar">🌟</div>
+      <div>
+        <div style="font-size:20px;font-weight:900;color:white" id="u-name">小星星</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-top:2px" id="u-level">SSR粉丝</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px" id="u-join">加入于 2025-06-01</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:0 16px;margin-top:-20px;position:relative;z-index:1" class="page-enter">
+
+    <!-- 钱包余额卡片 -->
+    <div class="wallet-card" style="margin-bottom:20px">
+      <div class="deco">💰</div>
+      <div style="font-size:13px;opacity:0.85;margin-bottom:4px">钱包余额</div>
+      <div class="wallet-amount"><span class="yen">¥</span><span id="u-balance">580.00</span></div>
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <div style="background:rgba(255,255,255,0.25);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer">+ 充值</div>
+        <a href="my-assets.html" style="background:rgba(255,255,255,0.25);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;color:white;text-decoration:none">🎫 我的资产</a>
+      </div>
+    </div>
+
+    <!-- 快捷入口 -->
+    <div class="card" style="margin-bottom:20px">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);padding:16px;gap:4px">
+        <a href="my-orders.html" style="text-align:center;text-decoration:none;color:inherit">
+          <div style="font-size:28px;margin-bottom:4px">📦</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600">我的订单</div>
+        </a>
+        <a href="my-assets.html" style="text-align:center;text-decoration:none;color:inherit">
+          <div style="font-size:28px;margin-bottom:4px">🎫</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600">我的资产</div>
+        </a>
+        <a href="qr-code.html" style="text-align:center;text-decoration:none;color:inherit">
+          <div style="font-size:28px;margin-bottom:4px">📱</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600">核销码</div>
+        </a>
+        <a href="my-verify-records.html" style="text-align:center;text-decoration:none;color:inherit">
+          <div style="font-size:28px;margin-bottom:4px">✅</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600">核销记录</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 最近订单 -->
+    <div class="section-title">🕐 最近订单</div>
+    <div id="recent-orders" style="margin-bottom:20px"></div>
+    <a href="my-orders.html" class="btn-secondary" style="margin-bottom:20px">查看全部订单</a>
+
+    <!-- 功能列表 -->
+    <div class="card" style="margin-bottom:20px">
+      <a class="list-row" href="#">
+        <div class="list-icon icon-yellow">🔔</div>
+        <div style="flex:1;font-weight:600;font-size:14px">消息通知</div>
+        <div style="color:var(--muted)">›</div>
+      </a>
+      <a class="list-row" href="#">
+        <div class="list-icon icon-sky">⭐</div>
+        <div style="flex:1;font-weight:600;font-size:14px">关注的商家</div>
+        <div style="color:var(--muted)">›</div>
+      </a>
+      <a class="list-row" href="#">
+        <div class="list-icon icon-mint">🎁</div>
+        <div style="flex:1;font-weight:600;font-size:14px">优惠活动</div>
+        <div style="background:#FF6EB4;color:white;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:600">NEW</div>
+        <div style="color:var(--muted);margin-left:8px">›</div>
+      </a>
+      <a class="list-row" href="#">
+        <div class="list-icon icon-purple">⚙️</div>
+        <div style="flex:1;font-weight:600;font-size:14px">账号设置</div>
+        <div style="color:var(--muted)">›</div>
+      </a>
+      <a class="list-row" href="staff/scan.html">
+        <div class="list-icon icon-sky">👷</div>
+        <div style="flex:1;font-weight:600;font-size:14px">切换到工作人员模式</div>
+        <div style="color:var(--muted)">›</div>
+      </a>
+    </div>
+
+    <div style="text-align:center;color:var(--muted);font-size:12px;margin-bottom:8px">
+      星彩 FANCLUB v1.0 Demo
+    </div>
+
+  </div>
+
+  <div class="safe-bottom"></div>
+
+  <nav class="bottom-nav">
+    <a href="index.html"><span class="icon">🏪</span>商城</a>
+    <a href="calendar.html"><span class="icon">📅</span>活动</a>
+    <a href="user-center.html" class="active"><span class="icon">👤</span>我的</a>
+  </nav>
+
+  <script>
+    const u = MOCK.currentUser;
+    document.getElementById('u-name').textContent = u.name;
+    document.getElementById('u-level').textContent = u.level;
+    document.getElementById('u-join').textContent = '加入于 ' + u.joinDate;
+    document.getElementById('u-balance').textContent = u.balance.toFixed(2);
+
+    const ordersEl = document.getElementById('recent-orders');
+    MOCK.orders.slice(0, 2).forEach(o => {
+      const statusMap = { paid:'已付款', verified:'已核销', pending:'待付款' };
+      const statusClass = { paid:'status-paid', verified:'status-verified', pending:'status-pending' };
+      ordersEl.innerHTML += `
+        <a class="order-card" href="my-orders.html" style="display:block;text-decoration:none;margin:0 0 12px">
+          <div class="order-header">
+            <span style="font-size:12px;color:var(--muted)">${o.merchantName}</span>
+            <span class="order-status ${statusClass[o.status]}">${statusMap[o.status]}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 16px">
+            <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#FFF0F9,#F3E8FF);display:flex;align-items:center;justify-content:center;font-size:24px">${o.emoji}</div>
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:14px">${o.productName}</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px">x${o.qty} · ${o.paidAt}</div>
+            </div>
+            <div style="font-size:15px;font-weight:700;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">¥${o.total}</div>
+          </div>
+        </a>`;
+    });
+  </script>
+</body>
+</html>

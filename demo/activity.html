@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>活动详情 - 星彩 FANCLUB</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="data/mock.js"></script>
+  <script src="assets/js/transitions.js"></script>
+  <style>
+    .info-chip { display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);font-size:14px; }
+    .info-chip:last-child { border-bottom:none; }
+    .info-chip .label { color:var(--muted);width:56px;flex-shrink:0; }
+  </style>
+</head>
+<body>
+
+  <!-- 活动封面 -->
+  <div id="act-hero" style="background:var(--grad);padding:56px 20px 64px;color:white;position:relative;overflow:hidden;text-align:center">
+    <div style="position:absolute;inset:0;opacity:0.1;font-size:200px;display:flex;align-items:center;justify-content:center" id="act-deco">🌸</div>
+    <a href="calendar.html" class="back-btn" style="position:absolute;top:16px;left:16px">‹</a>
+    <div style="position:relative;z-index:1">
+      <div style="font-size:80px;margin-bottom:12px" id="act-emoji">🌸</div>
+      <div style="font-size:22px;font-weight:900;margin-bottom:6px" id="act-name">活动名称</div>
+      <div id="act-tags" style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap"></div>
+    </div>
+    <div style="position:absolute;bottom:-1px;left:0;right:0;height:40px;background:var(--bg);border-radius:20px 20px 0 0;"></div>
+  </div>
+
+  <div style="padding:20px 16px;margin-top:-8px;position:relative" class="page-enter">
+
+    <!-- 活动信息 -->
+    <div class="card card-body" style="margin-bottom:20px">
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px">📋 活动信息</div>
+      <div class="info-chip">
+        <span class="label">日期</span>
+        <span id="act-date" style="font-weight:600">--</span>
+      </div>
+      <div class="info-chip">
+        <span class="label">时间</span>
+        <span id="act-time" style="font-weight:600">--</span>
+      </div>
+      <div class="info-chip">
+        <span class="label">地点</span>
+        <span id="act-location" style="font-weight:600">--</span>
+      </div>
+      <div class="info-chip" style="align-items:flex-start">
+        <span class="label">简介</span>
+        <span id="act-desc" style="font-weight:500;line-height:1.7">--</span>
+      </div>
+    </div>
+
+    <!-- 入驻商家 -->
+    <div class="section-title">🏪 活动商家</div>
+    <div id="act-merchants" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px"></div>
+
+    <!-- 活动相关商品 -->
+    <div class="section-title">🛒 活动相关商品</div>
+    <div id="act-products" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px"></div>
+
+    <!-- 购票/提醒 按钮 -->
+    <a href="index.html" class="btn-primary" style="margin-bottom:12px">🛒 去购买活动商品</a>
+    <button class="btn-secondary" style="margin-bottom:8px">🔔 设置活动提醒</button>
+
+  </div>
+
+  <div class="safe-bottom"></div>
+
+  <nav class="bottom-nav">
+    <a href="index.html"><span class="icon">🏪</span>商城</a>
+    <a href="calendar.html" class="active"><span class="icon">📅</span>活动</a>
+    <a href="user-center.html"><span class="icon">👤</span>我的</a>
+  </nav>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const aid = params.get('id') || 'a001';
+    const activity = MOCK.activities.find(a => a.id === aid);
+
+    if (activity) {
+      document.getElementById('act-emoji').textContent = activity.emoji;
+      document.getElementById('act-deco').textContent = activity.emoji;
+      document.getElementById('act-name').textContent = activity.name;
+      document.getElementById('act-date').textContent = activity.date;
+      document.getElementById('act-time').textContent = activity.time;
+      document.getElementById('act-location').textContent = activity.location;
+      document.getElementById('act-desc').textContent = activity.desc;
+      document.title = activity.name + ' - 星彩 FANCLUB';
+
+      const tagsEl = document.getElementById('act-tags');
+      activity.tags.forEach(t => {
+        tagsEl.innerHTML += `<span style="background:rgba(255,255,255,0.25);color:white;font-size:12px;font-weight:600;padding:3px 12px;border-radius:20px">${t}</span>`;
+      });
+
+      // 商家
+      const mEl = document.getElementById('act-merchants');
+      activity.merchantIds.forEach(mid => {
+        const m = MOCK.merchants.find(x => x.id === mid);
+        if (!m) return;
+        mEl.innerHTML += `
+          <a class="merchant-card" href="merchant.html?id=${m.id}">
+            <div class="merchant-avatar">${m.avatar}</div>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:14px">${m.name}</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:3px">${m.desc}</div>
+            </div>
+            <div style="color:var(--muted)">›</div>
+          </a>`;
+      });
+
+      // 商品
+      const pEl = document.getElementById('act-products');
+      const relatedProducts = MOCK.products.filter(p => activity.merchantIds.includes(p.merchantId)).slice(0, 4);
+      relatedProducts.forEach(p => {
+        pEl.innerHTML += `
+          <a class="product-card" href="product.html?id=${p.id}">
+            <div class="product-thumb"><span>${p.emoji}</span></div>
+            <div class="product-info">
+              <div class="product-name">${p.name}</div>
+              <div class="product-price" style="margin-top:4px"><span>¥</span>${p.price}</div>
+            </div>
+          </a>`;
+      });
+    }
+  </script>
+</body>
+</html>

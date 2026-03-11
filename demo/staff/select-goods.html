@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>选择核销商品 - 工作人员</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../data/mock.js"></script>
+  <script src="../assets/js/transitions.js"></script>
+  <style>
+    body { background: #1A0A2E; }
+    .staff-top { background: var(--grad2); padding: 16px 20px; display:flex;align-items:center;gap:12px;color:white; }
+    .goods-item {
+      background: white; border-radius: 16px;
+      padding: 14px 16px; margin: 0 16px 10px;
+      display: flex; align-items: center; gap: 12px;
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    .goods-item.selected { border-color: var(--pink); }
+  </style>
+</head>
+<body>
+
+  <div class="staff-top">
+    <a href="user-assets.html?uid=u001" class="back-btn">‹</a>
+    <div>
+      <div style="font-weight:800;font-size:15px">选择核销商品</div>
+      <div style="font-size:11px;opacity:0.8">用户：小星星</div>
+    </div>
+    <div style="margin-left:auto;font-size:11px;background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-weight:700">👷 工作人员</div>
+  </div>
+
+  <!-- 步骤指示器 -->
+  <div style="background:#26104A">
+    <div class="step-bar" style="background:transparent">
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label" style="color:var(--mint)">扫码</div></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label" style="color:var(--mint)">查看资产</div></div>
+      <div class="step-line done"></div>
+      <div class="step active"><div class="step-dot">3</div><div class="step-label" style="color:var(--sky)">选择商品</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">4</div><div class="step-label">预览</div></div>
+      <div class="step-line"></div>
+      <div class="step"><div class="step-dot">5</div><div class="step-label">完成</div></div>
+    </div>
+  </div>
+
+  <div style="padding:14px 16px;color:rgba(255,255,255,0.6);font-size:13px;background:#26104A">
+    请选择用户本次需要核销的商品及数量
+  </div>
+
+  <div id="goods-list" style="padding-top:12px"></div>
+
+  <!-- 底部确认 -->
+  <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#26104A;border-top:1px solid rgba(255,255,255,0.1);padding:14px 20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="color:rgba(255,255,255,0.6);font-size:13px">已选 <span id="selected-count" style="color:var(--sky);font-weight:700">0</span> 种商品</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6)">共 <span id="selected-total" style="color:var(--mint);font-weight:700">0</span> 张</div>
+    </div>
+    <button class="btn-primary btn-staff" id="next-btn" onclick="goNext()" style="opacity:0.5" disabled>
+      下一步：核销预览 →
+    </button>
+  </div>
+
+  <div style="height:100px"></div>
+
+  <script>
+    const u = MOCK.demoTargetUser;
+    const selections = {}; // productId -> qty
+
+    function updateSummary() {
+      let count = 0, total = 0;
+      Object.entries(selections).forEach(([id, qty]) => {
+        if (qty > 0) { count++; total += qty; }
+      });
+      document.getElementById('selected-count').textContent = count;
+      document.getElementById('selected-total').textContent = total;
+      const btn = document.getElementById('next-btn');
+      if (total > 0) {
+        btn.disabled = false; btn.style.opacity = '1';
+      } else {
+        btn.disabled = true; btn.style.opacity = '0.5';
+      }
+    }
+
+    function changeQty(pid, delta, maxQty) {
+      const curr = selections[pid] || 0;
+      const next = Math.max(0, Math.min(maxQty, curr + delta));
+      selections[pid] = next;
+
+      const el = document.getElementById('goods-list');
+      const item = document.querySelector(`.goods-item[data-pid="${pid}"]`);
+      if (item) {
+        item.querySelector('.qty-num').textContent = next;
+        item.classList.toggle('selected', next > 0);
+        item.querySelector('.qty-btn-minus').disabled = next <= 0;
+        item.querySelector('.qty-btn-plus').disabled = next >= maxQty;
+      }
+      updateSummary();
+    }
+
+    const el = document.getElementById('goods-list');
+    u.vouchers.forEach(v => {
+      selections[v.productId] = 0;
+      el.innerHTML += `
+        <div class="goods-item" data-pid="${v.productId}">
+          <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#FFF0F9,#F3E8FF);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">${v.emoji}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;font-size:14px;color:var(--text)">${v.name}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">可用：${v.count} 张</div>
+          </div>
+          <div class="qty-ctrl">
+            <button class="qty-btn qty-btn-minus" onclick="changeQty('${v.productId}',-1,${v.count})" disabled>−</button>
+            <span class="qty-num" style="color:var(--text)">0</span>
+            <button class="qty-btn qty-btn-plus" onclick="changeQty('${v.productId}',1,${v.count})">+</button>
+          </div>
+        </div>`;
+    });
+
+    function goNext() {
+      const selected = Object.entries(selections).filter(([,q]) => q > 0);
+      if (!selected.length) return;
+      const data = encodeURIComponent(JSON.stringify(selected));
+      _navigate('preview.html?uid=u001&sel=' + data);
+    }
+  </script>
+</body>
+</html>

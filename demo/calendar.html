@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>活动日历 - 星彩 FANCLUB</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="data/mock.js"></script>
+  <script src="assets/js/transitions.js"></script>
+  <style>
+    .cal-header { display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:white;border-bottom:1px solid var(--border); }
+    .cal-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:8px 16px; }
+    .cal-day-label { text-align:center;font-size:11px;color:var(--muted);font-weight:600;padding:6px 0; }
+    .cal-day {
+      aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      border-radius:50%;font-size:13px;font-weight:500;cursor:pointer;position:relative;
+    }
+    .cal-day.today { background:var(--grad);color:white;font-weight:900; }
+    .cal-day.has-event::after {
+      content:'';position:absolute;bottom:2px;
+      width:4px;height:4px;border-radius:50%;background:var(--pink);
+    }
+    .cal-day.today.has-event::after { background:white; }
+    .cal-day.other-month { color:#ccc; }
+    .cal-day.selected { border:2px solid var(--pink); }
+    .activity-card {
+      background:white;border-radius:18px;box-shadow:var(--shadow);
+      padding:16px;cursor:pointer;text-decoration:none;color:inherit;display:block;
+      transition:transform 0.15s;
+    }
+    .activity-card:active { transform:scale(0.98); }
+  </style>
+</head>
+<body>
+
+  <div class="hero-banner" style="padding-bottom:40px">
+    <div class="deco">📅</div>
+    <div style="position:relative;z-index:1">
+      <div style="font-size:11px;color:rgba(255,255,255,0.8);margin-bottom:4px">活动日历</div>
+      <div style="font-size:22px;font-weight:900;color:white">2026年3月 🌸</div>
+    </div>
+  </div>
+
+  <div style="background:white;margin:0;box-shadow:var(--shadow);margin-bottom:16px" class="page-enter">
+    <!-- 星期标题 -->
+    <div class="cal-grid">
+      <div class="cal-day-label">日</div><div class="cal-day-label">一</div><div class="cal-day-label">二</div>
+      <div class="cal-day-label">三</div><div class="cal-day-label">四</div><div class="cal-day-label">五</div>
+      <div class="cal-day-label">六</div>
+    </div>
+    <!-- 日历格子 -->
+    <div class="cal-grid" id="cal-grid" style="padding-bottom:16px"></div>
+  </div>
+
+  <!-- 活动列表 -->
+  <div style="padding:0 16px">
+    <div class="section-title">📌 即将举行的活动</div>
+    <div id="activity-list" style="display:flex;flex-direction:column;gap:14px"></div>
+  </div>
+
+  <div class="safe-bottom"></div>
+
+  <nav class="bottom-nav">
+    <a href="index.html"><span class="icon">🏪</span>商城</a>
+    <a href="calendar.html" class="active"><span class="icon">📅</span>活动</a>
+    <a href="user-center.html"><span class="icon">👤</span>我的</a>
+  </nav>
+
+  <script>
+    // 日历渲染（2026年3月）
+    const eventDays = [15, 22]; // 有活动的日子
+    const today = 11;
+    const firstDay = 0; // 3月1日是周日
+    const daysInMonth = 31;
+    const grid = document.getElementById('cal-grid');
+
+    // 填充空格
+    for (let i = 0; i < firstDay; i++) {
+      const d = document.createElement('div');
+      d.className = 'cal-day other-month';
+      grid.appendChild(d);
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day' +
+        (d === today ? ' today' : '') +
+        (eventDays.includes(d) ? ' has-event' : '');
+      el.textContent = d;
+      el.onclick = () => {
+        document.querySelectorAll('.cal-day.selected').forEach(x => x.classList.remove('selected'));
+        if (!el.classList.contains('today')) el.classList.add('selected');
+        if (eventDays.includes(d)) {
+          const act = MOCK.activities.find(a => a.date === '2026-03-' + String(d).padStart(2,'0'));
+          if (act) location.href = 'activity.html?id=' + act.id;
+        }
+      };
+      grid.appendChild(el);
+    }
+
+    // 活动列表
+    const listEl = document.getElementById('activity-list');
+    const upcoming = MOCK.activities.filter(a => a.status === 'upcoming');
+    upcoming.forEach(act => {
+      listEl.innerHTML += `
+        <a class="activity-card" href="activity.html?id=${act.id}">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:56px;height:56px;border-radius:16px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">${act.emoji}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:800;font-size:15px;margin-bottom:4px">${act.name}</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px">📅 ${act.date} ${act.time}</div>
+              <div style="font-size:12px;color:var(--muted)">📍 ${act.location}</div>
+            </div>
+            <div style="color:var(--muted)">›</div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+            ${act.tags.map(t => `<span class="tag tag-purple">${t}</span>`).join('')}
+          </div>
+        </a>`;
+    });
+  </script>
+</body>
+</html>

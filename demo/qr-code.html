@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>核销二维码 - 星彩 FANCLUB</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="data/mock.js"></script>
+  <script src="assets/js/transitions.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    body { background: var(--grad); min-height: 100vh; }
+    .qr-page {
+      display: flex; flex-direction: column;
+      align-items: center; padding: 24px 20px;
+      min-height: 100vh;
+    }
+    .qr-header {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .qr-card {
+      background: white; border-radius: 28px;
+      padding: 28px 24px; width: 100%;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    #qrcode { display: flex; justify-content: center; margin: 20px 0; }
+    #qrcode canvas, #qrcode img { border-radius: 12px !important; }
+
+    .refresh-btn {
+      background: var(--grad); color: white;
+      border: none; border-radius: 20px;
+      padding: 8px 20px; font-size: 13px; font-weight: 700;
+      cursor: pointer; margin-top: 8px;
+    }
+    .pulse-ring {
+      position: relative; display: inline-block;
+    }
+    .pulse-ring::before {
+      content: '';
+      position: absolute; inset: -8px;
+      border-radius: 16px;
+      border: 2px solid var(--pink);
+      animation: pulse-fade 2s infinite;
+    }
+    @keyframes pulse-fade {
+      0%,100% { opacity: 0.6; transform: scale(1); }
+      50%      { opacity: 0;   transform: scale(1.05); }
+    }
+    .voucher-mini {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; background: #F8F0FF;
+      border-radius: 12px; margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="qr-page">
+    <!-- 顶部导航 -->
+    <div class="qr-header">
+      <a href="user-center.html" class="back-btn" style="width:36px;height:36px">‹</a>
+      <div style="color:white;font-size:16px;font-weight:800">核销二维码</div>
+      <div style="width:36px"></div>
+    </div>
+
+    <!-- 用户信息 -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;color:white">
+      <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid rgba(255,255,255,0.5)">🌟</div>
+      <div>
+        <div id="u-name" style="font-weight:800;font-size:17px">小星星</div>
+        <div id="u-level" style="font-size:13px;opacity:0.85">SSR粉丝</div>
+      </div>
+    </div>
+
+    <!-- 二维码主卡片 -->
+    <div class="qr-card page-enter">
+      <div style="font-size:14px;color:var(--muted);margin-bottom:4px">向工作人员出示此码</div>
+      <div style="font-size:13px;color:var(--text);font-weight:600">核销您购买的商品</div>
+
+      <!-- QR Code -->
+      <div class="pulse-ring" style="display:inline-block">
+        <div id="qrcode"></div>
+      </div>
+
+      <!-- 倒计时 -->
+      <div class="countdown">
+        有效时间剩余
+        <span id="timer-display">05:00</span>
+      </div>
+
+      <!-- 状态指示 -->
+      <div id="qr-status" style="display:inline-flex;align-items:center;gap:6px;background:#D1FAE5;color:#059669;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;margin:8px 0">
+        <span style="width:7px;height:7px;background:#059669;border-radius:50%;display:inline-block;animation:pulse-dot 1.5s infinite"></span>
+        有效
+      </div>
+      <style>@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.3}}</style>
+
+      <button class="refresh-btn" onclick="refreshQR()">🔄 刷新二维码</button>
+    </div>
+
+    <!-- 资产一览 -->
+    <div style="width:100%;margin-top:20px;">
+      <div style="color:white;font-size:14px;font-weight:700;margin-bottom:10px">🎫 可核销资产</div>
+      <div id="voucher-mini-list"></div>
+    </div>
+
+    <!-- 提示 -->
+    <div style="color:rgba(255,255,255,0.7);font-size:12px;text-align:center;margin-top:16px;line-height:1.7;padding:0 8px">
+      ⚡ 二维码绑定您的账户，含有效期签名保护<br>请勿截图分享，每次使用请实时展示
+    </div>
+
+  </div>
+
+  <script>
+    const u = MOCK.currentUser;
+    document.getElementById('u-name').textContent = u.name;
+    document.getElementById('u-level').textContent = u.level;
+
+    // 资产一览
+    const miniEl = document.getElementById('voucher-mini-list');
+    u.vouchers.forEach(v => {
+      miniEl.innerHTML += `
+        <div class="voucher-mini">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${v.merchantName}</div>
+          <div style="font-size:18px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">${v.count} 张</div>
+        </div>`;
+    });
+
+    // 二维码生成
+    let qrInstance = null;
+    let timeLeft = 300; // 5分钟
+    let timerInterval = null;
+
+    function generateToken() {
+      const now = Math.floor(Date.now() / 1000);
+      return JSON.stringify({
+        user_id: u.id,
+        timestamp: now,
+        expires: now + 300,
+        sig: 'DEMO_' + Math.random().toString(36).slice(2, 8).toUpperCase()
+      });
+    }
+
+    function refreshQR() {
+      clearInterval(timerInterval);
+      timeLeft = 300;
+      document.getElementById('qrcode').innerHTML = '';
+      document.getElementById('qr-status').innerHTML =
+        '<span style="width:7px;height:7px;background:#059669;border-radius:50%;display:inline-block"></span> 有效';
+      document.getElementById('qr-status').style.background = '#D1FAE5';
+      document.getElementById('qr-status').style.color = '#059669';
+
+      qrInstance = new QRCode(document.getElementById('qrcode'), {
+        text: generateToken(),
+        width: 200, height: 200,
+        colorDark: '#3D2B4F',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      startTimer();
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+        const s = String(timeLeft % 60).padStart(2, '0');
+        document.getElementById('timer-display').textContent = m + ':' + s;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('qr-status').innerHTML = '⚠️ 已过期';
+          document.getElementById('qr-status').style.background = '#FFE5E5';
+          document.getElementById('qr-status').style.color = '#FF4C8B';
+          document.getElementById('qrcode').style.filter = 'blur(4px) grayscale(1)';
+        } else if (timeLeft <= 60) {
+          document.getElementById('timer-display').style.color = '#FF4C8B';
+        }
+      }, 1000);
+    }
+
+    refreshQR();
+  </script>
+</body>
+</html>

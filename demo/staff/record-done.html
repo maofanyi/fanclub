@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>核销成功 - 工作人员</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../data/mock.js"></script>
+  <script src="../assets/js/transitions.js"></script>
+  <style>
+    body { background: #1A0A2E; min-height:100vh; }
+    .staff-top { background: var(--grad2); padding: 16px 20px; display:flex;align-items:center;gap:12px;color:white; }
+    @keyframes record-float { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    .record-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(56,189,248,0.2);
+      border-radius: 18px; padding: 16px; margin: 0 16px 12px;
+    }
+    .record-row { display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08);font-size:13px; }
+    .record-row:last-child { border-bottom:none; }
+  </style>
+</head>
+<body>
+
+  <div class="staff-top">
+    <div>
+      <div style="font-weight:800;font-size:15px">核销完成</div>
+      <div style="font-size:11px;opacity:0.8">星彩 Official 周边店 · 核销点1</div>
+    </div>
+    <div style="margin-left:auto;background:rgba(52,211,153,0.2);border:1px solid rgba(52,211,153,0.4);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#34D399">✓ 已完成</div>
+  </div>
+
+  <!-- 步骤完成 -->
+  <div style="background:#26104A">
+    <div class="step-bar" style="background:transparent">
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label" style="color:var(--mint)">扫码</div></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label" style="color:var(--mint)">查看资产</div></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label" style="color:var(--mint)">选择商品</div></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label" style="color:var(--mint)">预览</div></div>
+      <div class="step-line done"></div>
+      <div class="step done"><div class="step-dot">✓</div><div class="step-label" style="color:var(--mint)">完成</div></div>
+    </div>
+  </div>
+
+  <!-- 成功主区 -->
+  <div style="text-align:center;padding:32px 24px 20px;animation:record-float 0.5s ease-out">
+    <div class="success-circle">✅</div>
+    <div style="font-size:26px;font-weight:900;color:white;margin-bottom:6px">核销成功！</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.5)">资产已扣减，记录已生成</div>
+  </div>
+
+  <!-- 核销记录卡 -->
+  <div style="animation:record-float 0.5s 0.2s both">
+    <div style="padding:0 16px;margin-bottom:8px">
+      <div style="font-size:13px;color:rgba(255,255,255,0.4)">核销记录 #<span id="record-id">--</span></div>
+    </div>
+
+    <!-- 用户 + 商家 -->
+    <div class="record-card">
+      <div class="record-row">
+        <span style="color:rgba(255,255,255,0.4)">核销用户</span>
+        <span style="color:white;font-weight:600">🌟 小星星 (u001)</span>
+      </div>
+      <div class="record-row">
+        <span style="color:rgba(255,255,255,0.4)">核销商家</span>
+        <span style="color:white;font-weight:600">⭐ 星彩 Official 周边店</span>
+      </div>
+      <div class="record-row">
+        <span style="color:rgba(255,255,255,0.4)">核销地点</span>
+        <span style="color:white;font-weight:600">核销点1</span>
+      </div>
+      <div class="record-row">
+        <span style="color:rgba(255,255,255,0.4)">工作人员</span>
+        <span style="color:white;font-weight:600">工作人员 - 小A</span>
+      </div>
+      <div class="record-row">
+        <span style="color:rgba(255,255,255,0.4)">核销时间</span>
+        <span id="verify-time" style="color:var(--sky);font-weight:600">--</span>
+      </div>
+    </div>
+
+    <!-- 商品明细 -->
+    <div style="padding:0 16px 6px;font-size:13px;color:rgba(255,255,255,0.4)">商品明细</div>
+    <div class="record-card">
+      <div id="goods-detail"></div>
+      <div style="height:1px;background:rgba(255,255,255,0.1);margin:10px 0"></div>
+      <div class="record-row" style="font-size:15px;font-weight:800">
+        <span style="color:white">合计扣减</span>
+        <span id="total" style="color:var(--mint)">-- 张</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 操作按钮 -->
+  <div style="padding:16px;display:flex;flex-direction:column;gap:10px;animation:record-float 0.5s 0.4s both">
+    <a href="scan.html" class="btn-primary btn-staff">📱 继续扫码核销</a>
+    <a href="../user-center.html" class="btn-secondary" style="text-align:center;border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.6)">返回工作台首页</a>
+  </div>
+
+  <div style="height:30px"></div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    let selected = [];
+    try { selected = JSON.parse(decodeURIComponent(params.get('sel') || '[]')); } catch {}
+    if (!selected.length) selected = [['p001', 2], ['p002', 1]];
+
+    // 生成记录ID
+    const rid = 'VR' + Date.now().toString().slice(-8).toUpperCase();
+    document.getElementById('record-id').textContent = rid;
+
+    // 时间
+    const now = new Date();
+    const timeStr = now.getFullYear() + '-' +
+      String(now.getMonth()+1).padStart(2,'0') + '-' +
+      String(now.getDate()).padStart(2,'0') + ' ' +
+      String(now.getHours()).padStart(2,'0') + ':' +
+      String(now.getMinutes()).padStart(2,'0') + ':' +
+      String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('verify-time').textContent = timeStr;
+
+    // 商品明细
+    const el = document.getElementById('goods-detail');
+    let totalQty = 0;
+    selected.forEach(([pid, qty]) => {
+      const v = MOCK.demoTargetUser.vouchers.find(x => x.productId === pid);
+      if (!v) return;
+      totalQty += qty;
+      el.innerHTML += `
+        <div class="record-row">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:18px">${v.emoji}</span>
+            <span style="color:white;font-weight:600">${v.name}</span>
+          </div>
+          <div>
+            <span style="color:rgba(255,255,255,0.4);text-decoration:line-through;font-size:12px">${v.count} 张</span>
+            <span style="color:var(--mint);font-weight:700;margin-left:8px">${v.count - qty} 张</span>
+          </div>
+        </div>`;
+    });
+    document.getElementById('total').textContent = totalQty + ' 张';
+  </script>
+</body>
+</html>

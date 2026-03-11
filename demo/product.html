@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>商品详情 - 星彩 FANCLUB</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="data/mock.js"></script>
+  <script src="assets/js/transitions.js"></script>
+  <style>
+    .product-hero {
+      height: 220px;
+      background: linear-gradient(135deg, #FFF0F9 0%, #F3E8FF 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 100px;
+      position: relative;
+    }
+    .sticky-buy {
+      position: fixed;
+      bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 430px;
+      background: white;
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -4px 20px rgba(168,85,247,0.1);
+      z-index: 100;
+    }
+    .star-rating span { color: #FBBF24; font-size: 14px; }
+    .review-row { padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .review-row:last-child { border-bottom: none; }
+    .qty-row { display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部图片区 -->
+  <div class="product-hero" id="p-hero">
+    <div style="position:absolute;top:16px;left:16px">
+      <a id="back-link" href="index.html" class="back-btn" style="background:rgba(255,255,255,0.8);color:var(--text)">‹</a>
+    </div>
+    <span id="p-emoji">🎁</span>
+    <div id="p-badge" style="position:absolute;top:16px;right:16px"></div>
+  </div>
+
+  <div style="padding:20px 16px 0" class="page-enter">
+
+    <!-- 价格 + 名称 -->
+    <div style="margin-bottom:4px;display:flex;gap:6px" id="p-tags"></div>
+    <div id="p-name" style="font-size:22px;font-weight:900;margin-bottom:6px">商品名称</div>
+    <div id="p-price" style="font-size:32px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px">¥--</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div class="star-rating"><span>★★★★★</span></div>
+      <div id="p-sold" style="font-size:13px;color:var(--muted)">-- 人购买</div>
+      <div id="p-stock" style="font-size:13px;color:var(--muted)">库存 --</div>
+    </div>
+
+    <!-- 分割线 -->
+    <div style="height:1px;background:var(--border);margin-bottom:16px"></div>
+
+    <!-- 购买数量 -->
+    <div class="qty-row">
+      <span style="font-size:15px;font-weight:600">购买数量</span>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty(-1)">−</button>
+        <span class="qty-num" id="qty-num">1</span>
+        <button class="qty-btn" onclick="changeQty(1)">+</button>
+      </div>
+    </div>
+
+    <!-- 所属商家 -->
+    <a id="merchant-link" href="#" style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);text-decoration:none;color:inherit">
+      <div id="merchant-avatar" class="merchant-avatar" style="width:44px;height:44px;font-size:22px;border-radius:12px">⭐</div>
+      <div>
+        <div style="font-size:12px;color:var(--muted)">所属商家</div>
+        <div id="merchant-name" style="font-size:15px;font-weight:700">--</div>
+      </div>
+      <div style="margin-left:auto;color:var(--muted)">›</div>
+    </a>
+
+    <!-- 商品详情 -->
+    <div style="margin-top:16px;margin-bottom:8px">
+      <div class="section-title">📋 商品详情</div>
+      <div id="p-desc" style="font-size:14px;color:var(--text);line-height:1.8;background:white;border-radius:14px;padding:14px;box-shadow:var(--shadow)">--</div>
+    </div>
+
+    <!-- 核销说明 -->
+    <div class="card card-body" style="margin:16px 0;background:linear-gradient(135deg,#FFF0F9,#F3E8FF)">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px">🎫 领取方式</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.8">付款后资产将即时到账，前往线下活动现场，向工作人员出示「核销二维码」即可领取实物。</div>
+    </div>
+
+    <!-- 用户评价 -->
+    <div class="section-title" style="margin-top:8px">💬 买家评价</div>
+    <div class="card" style="margin-bottom:8px">
+      <div class="review-row" style="padding:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span style="font-size:20px">🐱</span>
+          <span style="font-weight:600;font-size:13px">小兔子同学</span>
+          <span style="color:#FBBF24;font-size:12px">★★★★★</span>
+        </div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6">超级好看！现场核销的时候工作人员也很友好，包装精美，值得购买！✨</div>
+      </div>
+      <div class="review-row" style="padding:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span style="font-size:20px">🌸</span>
+          <span style="font-weight:600;font-size:13px">星彩应援团</span>
+          <span style="color:#FBBF24;font-size:12px">★★★★☆</span>
+        </div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6">质量很好，做工精细。希望以后多出联名款～</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="height:100px"></div>
+
+  <!-- 底部购买 -->
+  <div class="sticky-buy">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+      <span style="font-size:13px;color:var(--muted)">合计：</span>
+      <span id="total-price" style="font-size:22px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">¥--</span>
+    </div>
+    <a id="buy-btn" href="#" class="btn-primary">立即购买 🛒</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const pid = params.get('id') || 'p001';
+    const product = MOCK.products.find(p => p.id === pid);
+    const merchant = product ? MOCK.merchants.find(m => m.id === product.merchantId) : null;
+    let qty = 1;
+
+    if (product) {
+      document.getElementById('p-emoji').textContent = product.emoji;
+      document.getElementById('p-name').textContent = product.name;
+      document.getElementById('p-price').textContent = '¥' + product.price;
+      document.getElementById('p-sold').textContent = product.sold + ' 人购买';
+      document.getElementById('p-stock').textContent = '库存 ' + product.stock;
+      document.getElementById('p-desc').textContent = product.desc;
+      document.title = product.name + ' - 星彩 FANCLUB';
+
+      const tagsEl = document.getElementById('p-tags');
+      product.tags.forEach(t => {
+        const cls = t === '热销' ? 'tag-hot' : t === '限定' ? 'tag-pink' : 'tag-purple';
+        tagsEl.innerHTML += `<span class="tag ${cls}">${t}</span>`;
+      });
+
+      document.getElementById('back-link').href = 'merchant.html?id=' + product.merchantId;
+      document.getElementById('buy-btn').href = 'checkout.html?id=' + product.id + '&qty=1';
+    }
+
+    if (merchant) {
+      document.getElementById('merchant-avatar').textContent = merchant.avatar;
+      document.getElementById('merchant-name').textContent = merchant.name;
+      document.getElementById('merchant-link').href = 'merchant.html?id=' + merchant.id;
+    }
+
+    function changeQty(d) {
+      qty = Math.max(1, Math.min(10, qty + d));
+      document.getElementById('qty-num').textContent = qty;
+      document.getElementById('total-price').textContent = '¥' + (product ? product.price * qty : 0);
+      document.getElementById('buy-btn').href = 'checkout.html?id=' + pid + '&qty=' + qty;
+    }
+
+    // 初始化
+    if (product) document.getElementById('total-price').textContent = '¥' + product.price;
+  </script>
+</body>
+</html>

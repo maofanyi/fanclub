@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>商家页 - 星彩 FANCLUB</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="data/mock.js"></script>
+  <script src="assets/js/transitions.js"></script>
+  <style>
+    .merchant-hero {
+      background: var(--grad);
+      padding: 20px 20px 60px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .merchant-hero .deco { position:absolute;right:16px;bottom:-4px;font-size:90px;opacity:0.15; }
+    .tab-bar { display:flex;background:white;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10; }
+    .tab { flex:1;padding:12px;text-align:center;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer; }
+    .tab.active { color:var(--pink);border-bottom:3px solid var(--pink); }
+    .grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+  </style>
+</head>
+<body>
+  <!-- 商家头部 -->
+  <div class="merchant-hero" id="merchant-hero">
+    <div class="deco" id="m-deco">⭐</div>
+    <a href="index.html" class="back-btn" style="margin-bottom:16px">‹</a>
+    <div style="display:flex;align-items:center;gap:16px;position:relative;z-index:1">
+      <div id="m-avatar" style="width:72px;height:72px;border-radius:20px;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:40px;border:3px solid rgba(255,255,255,0.5)">⭐</div>
+      <div>
+        <div id="m-name" style="font-size:20px;font-weight:900;margin-bottom:4px">商家名称</div>
+        <div id="m-tags" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"></div>
+        <div id="m-desc" style="font-size:13px;opacity:0.85">商家简介</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;margin-top:16px;position:relative;z-index:1">
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:900" id="m-count">0</div>
+        <div style="font-size:11px;opacity:0.8">件商品</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:900" id="m-rating">4.9</div>
+        <div style="font-size:11px;opacity:0.8">⭐ 评分</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:900">100+</div>
+        <div style="font-size:11px;opacity:0.8">粉丝关注</div>
+      </div>
+    </div>
+    <!-- 曲线 -->
+    <div style="position:absolute;bottom:-1px;left:0;right:0;height:40px;background:var(--bg);border-radius:20px 20px 0 0;"></div>
+  </div>
+
+  <!-- Tab 切换 -->
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('all')">全部商品</div>
+    <div class="tab" onclick="switchTab('voucher')">代金券</div>
+    <div class="tab" onclick="switchTab('activity')">活动商品</div>
+  </div>
+
+  <div style="padding:16px" class="page-enter">
+    <div id="product-grid" class="grid-2"></div>
+  </div>
+
+  <div class="safe-bottom"></div>
+
+  <nav class="bottom-nav">
+    <a href="index.html"><span class="icon">🏪</span>商城</a>
+    <a href="calendar.html"><span class="icon">📅</span>活动</a>
+    <a href="user-center.html"><span class="icon">👤</span>我的</a>
+  </nav>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const mid = params.get('id') || 'm001';
+    const merchant = MOCK.merchants.find(m => m.id === mid);
+    let products = MOCK.products.filter(p => p.merchantId === mid);
+    let currentTab = 'all';
+
+    if (merchant) {
+      document.getElementById('m-avatar').textContent = merchant.avatar;
+      document.getElementById('m-deco').textContent = merchant.avatar;
+      document.getElementById('m-name').textContent = merchant.name;
+      document.getElementById('m-desc').textContent = merchant.desc;
+      document.getElementById('m-count').textContent = merchant.productCount;
+      document.getElementById('m-rating').textContent = merchant.rating;
+      document.title = merchant.name + ' - 星彩 FANCLUB';
+      const tagsEl = document.getElementById('m-tags');
+      merchant.tags.forEach(t => {
+        tagsEl.innerHTML += `<span style="background:rgba(255,255,255,0.25);color:white;font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px">${t}</span>`;
+      });
+    }
+
+    function renderProducts(list) {
+      const el = document.getElementById('product-grid');
+      el.innerHTML = '';
+      if (!list.length) {
+        el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;grid-column:1/-1">暂无商品</div>';
+        return;
+      }
+      list.forEach(p => {
+        el.innerHTML += `
+          <a class="product-card" href="product.html?id=${p.id}">
+            <div class="product-thumb">
+              <span>${p.emoji}</span>
+              ${p.tags.includes('热销') ? '<span class="tag tag-hot" style="position:absolute;top:8px;left:8px">🔥 热销</span>' : ''}
+              ${p.tags.includes('限定') ? '<span class="tag tag-pink" style="position:absolute;top:8px;left:8px">✨ 限定</span>' : ''}
+            </div>
+            <div class="product-info">
+              <div class="product-name">${p.name}</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+                <div class="product-price"><span>¥</span>${p.price}</div>
+                <div style="font-size:10px;color:var(--muted)">${p.sold}人购买</div>
+              </div>
+            </div>
+          </a>`;
+      });
+    }
+
+    function switchTab(type) {
+      currentTab = type;
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', ['all','voucher','activity'][i] === type);
+      });
+      const filtered = type === 'all' ? products : products.filter(p => p.type === type);
+      renderProducts(filtered);
+    }
+
+    renderProducts(products);
+  </script>
+</body>
+</html>
