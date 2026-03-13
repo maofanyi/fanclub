@@ -116,6 +116,30 @@ body {
 .bottom-nav a.active { color: var(--pink); }
 .bottom-nav a.active .icon { animation: bounce 0.4s; }
 
+/* 购物车角标 */
+.cart-nav-badge {
+  position: absolute;
+  top: -4px; right: -6px;
+  min-width: 16px; height: 16px;
+  background: linear-gradient(135deg, var(--pink), var(--purple));
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 8px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
+  pointer-events: none;
+}
+.icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @keyframes bounce {
   0%,100% { transform: translateY(0); }
   40%      { transform: translateY(-4px); }

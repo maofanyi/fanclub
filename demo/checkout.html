@@ -28,29 +28,8 @@
 
     <!-- 商品信息卡 -->
     <div class="section-title">🛒 订单商品</div>
-    <div class="card card-body" style="margin-bottom:20px">
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#FFF0F9,#F3E8FF);display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0" id="o-emoji">🎁</div>
-        <div style="flex:1">
-          <div id="o-name" style="font-weight:700;font-size:15px;margin-bottom:4px">商品名称</div>
-          <div id="o-merchant" style="font-size:12px;color:var(--muted);margin-bottom:6px">商家名称</div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span id="o-price" style="font-size:18px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">¥--</span>
-            <span id="o-qty" style="font-size:13px;color:var(--muted)">x1</span>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:var(--border);margin:14px 0"></div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px">
-        <span>商品小计</span><span id="subtotal">¥--</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px">
-        <span>平台服务费</span><span>¥0</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;margin-top:8px">
-        <span>合计</span>
-        <span id="total" style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">¥--</span>
-      </div>
+    <div class="card card-body" style="margin-bottom:20px" id="order-goods-card">
+      <!-- 商品列表由 JS 渲染 -->
     </div>
 
     <!-- 支付方式 -->
@@ -106,35 +85,91 @@
 
   <script>
     const params = new URLSearchParams(location.search);
-    const pid = params.get('id') || 'p001';
-    const qty = parseInt(params.get('qty')) || 1;
-    const product = MOCK.products.find(p => p.id === pid);
-    const merchant = product ? MOCK.merchants.find(m => m.id === product.merchantId) : null;
+    const fromCart = params.get('from') === 'cart';
+    const bal = MOCK.currentUser.balance;
     let selectedPay = 'wallet';
+    let orderTotal = 0;
+    let orderItems = []; // { product, qty }
 
-    if (product) {
-      const total = product.price * qty;
-      document.getElementById('o-emoji').textContent = product.emoji;
-      document.getElementById('o-name').textContent = product.name;
-      document.getElementById('o-price').textContent = '¥' + product.price;
-      document.getElementById('o-qty').textContent = 'x' + qty;
-      document.getElementById('subtotal').textContent = '¥' + total;
-      document.getElementById('total').textContent = '¥' + total;
-      document.getElementById('pay-btn').textContent = '立即支付 ¥' + total;
-      if (merchant) document.getElementById('o-merchant').textContent = merchant.name;
+    document.getElementById('balance-show').textContent = '¥' + bal.toFixed(2);
+
+    function renderGoods() {
+      const card = document.getElementById('order-goods-card');
+      let html = '';
+
+      if (fromCart) {
+        // 购物车结算模式
+        const cartItems = CART.getItems();
+        cartItems.forEach(function(item) {
+          const p = MOCK.products.find(function(x) { return x.id === item.productId; });
+          if (!p) return;
+          const m = MOCK.merchants.find(function(x) { return x.id === p.merchantId; });
+          orderItems.push({ product: p, qty: item.qty });
+          html += `
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div style="width:50px;height:50px;border-radius:12px;background:linear-gradient(135deg,#FFF0F9,#F3E8FF);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">${p.emoji}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+                <div style="font-size:12px;color:var(--muted)">${m ? m.name : ''}</div>
+              </div>
+              <div style="text-align:right;flex-shrink:0">
+                <div style="font-size:15px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">¥${p.price * item.qty}</div>
+                <div style="font-size:12px;color:var(--muted)">x${item.qty}</div>
+              </div>
+            </div>`;
+        });
+        orderTotal = CART.getTotal();
+      } else {
+        // 单商品直购模式
+        const pid = params.get('id') || 'p001';
+        const qty = parseInt(params.get('qty')) || 1;
+        const p = MOCK.products.find(function(x) { return x.id === pid; });
+        const m = p ? MOCK.merchants.find(function(x) { return x.id === p.merchantId; }) : null;
+        if (p) {
+          orderItems.push({ product: p, qty: qty });
+          orderTotal = p.price * qty;
+          html += `
+            <div style="display:flex;align-items:center;gap:14px">
+              <div style="width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#FFF0F9,#F3E8FF);display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0">${p.emoji}</div>
+              <div style="flex:1">
+                <div style="font-weight:700;font-size:15px;margin-bottom:4px">${p.name}</div>
+                <div style="font-size:12px;color:var(--muted);margin-bottom:6px">${m ? m.name : ''}</div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:18px;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">¥${p.price}</span>
+                  <span style="font-size:13px;color:var(--muted)">x${qty}</span>
+                </div>
+              </div>
+            </div>`;
+        }
+      }
+
+      html += `
+        <div style="height:1px;background:var(--border);margin:14px 0"></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px">
+          <span>商品小计</span><span>¥${orderTotal}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px">
+          <span>平台服务费</span><span>¥0</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;margin-top:8px">
+          <span>合计</span>
+          <span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">¥${orderTotal}</span>
+        </div>`;
+
+      card.innerHTML = html;
+      document.getElementById('pay-btn').textContent = '立即支付 ¥' + orderTotal;
     }
 
-    const bal = MOCK.currentUser.balance;
-    document.getElementById('balance-show').textContent = '¥' + bal.toFixed(2);
+    renderGoods();
 
     function selectPay(el, type) {
       selectedPay = type;
-      ['wallet','alipay','wechat'].forEach(t => {
+      ['wallet','alipay','wechat'].forEach(function(t) {
         document.getElementById('pay-' + t).classList.remove('selected');
       });
       el.classList.add('selected');
       const warn = document.getElementById('balance-warn');
-      if (type === 'wallet' && product && product.price * qty > bal) {
+      if (type === 'wallet' && orderTotal > bal) {
         warn.style.display = 'block';
       } else {
         warn.style.display = 'none';
@@ -142,17 +177,23 @@
     }
 
     function doPay() {
-      if (selectedPay === 'wallet' && product && product.price * qty > bal) {
+      if (selectedPay === 'wallet' && orderTotal > bal) {
         selectPay(document.getElementById('pay-wallet'), 'wallet');
         return;
       }
       const btn = document.getElementById('pay-btn');
       btn.textContent = '支付中...';
       btn.style.opacity = '0.7';
-      setTimeout(() => {
-        // 存储购买信息供成功页使用
-        DEMO_STATE.set('lastOrder', { pid, qty, payMethod: selectedPay });
-        _navigate('pay-success.html?id=' + pid + '&qty=' + qty + '&pay=' + selectedPay);
+      setTimeout(function() {
+        if (fromCart) {
+          DEMO_STATE.set('lastOrder', { fromCart: true, total: orderTotal, payMethod: selectedPay });
+          _navigate('pay-success.html?from=cart&total=' + orderTotal + '&pay=' + selectedPay);
+        } else {
+          const pid = params.get('id') || 'p001';
+          const qty = parseInt(params.get('qty')) || 1;
+          DEMO_STATE.set('lastOrder', { pid: pid, qty: qty, payMethod: selectedPay });
+          _navigate('pay-success.html?id=' + pid + '&qty=' + qty + '&pay=' + selectedPay);
+        }
       }, 1000);
     }
   </script>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>购物车 - 星彩 FANCLUB</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="data/mock.js"></script>
+  <script src="assets/js/transitions.js"></script>
+  <style>
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+    .cart-item-emoji {
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #FFF0F9, #F3E8FF);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+    .cart-item-body { flex: 1; min-width: 0; }
+    .cart-item-name { font-weight: 700; font-size: 14px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cart-item-sub { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .cart-item-row { display: flex; align-items: center; justify-content: space-between; }
+    .item-price { font-size: 17px; font-weight: 900; background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .item-qty-ctrl { display: flex; align-items: center; gap: 8px; }
+    .item-qty-ctrl button {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1.5px solid var(--border); background: white;
+      font-size: 16px; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .item-qty-ctrl button:active { transform: scale(0.9); }
+    .item-qty-ctrl .qty-num { font-weight: 700; font-size: 15px; min-width: 20px; text-align: center; }
+    .remove-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: none; background: #FFF0F0;
+      color: #FF4C8B; font-size: 16px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.15s;
+    }
+    .remove-btn:active { transform: scale(0.9); }
+
+    .empty-cart {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty-cart .empty-icon { font-size: 64px; margin-bottom: 16px; }
+    .empty-cart p { font-size: 15px; margin-bottom: 24px; }
+
+    .cart-summary {
+      background: white;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .summary-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .summary-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; margin-top: 10px; }
+    .summary-total-val { background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    .select-all-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px; font-size: 13px; color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="javascript:history.back()" class="back-btn">‹</a>
+    <h1>购物车 <span id="item-count-title" style="font-size:14px;font-weight:400;color:var(--muted)"></span></h1>
+    <button id="clear-btn" onclick="confirmClear()" style="background:none;border:none;font-size:13px;color:var(--muted);padding:4px 8px;cursor:pointer;display:none">清空</button>
+  </div>
+
+  <div class="page-enter" style="padding:16px" id="cart-content">
+    <!-- 渲染购物车内容 -->
+  </div>
+
+  <div style="height:90px"></div>
+
+  <!-- 底部结算栏 -->
+  <div id="checkout-bar" style="display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:white;padding:14px 20px;border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(168,85,247,0.1)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <span style="font-size:13px;color:var(--muted)">共 <span id="total-count">0</span> 件</span>
+      <span style="font-size:18px;font-weight:900">合计：<span id="bottom-total" style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent">¥0</span></span>
+    </div>
+    <button class="btn-primary" onclick="goCheckout()">去结算</button>
+  </div>
+
+  <script>
+    function renderCart() {
+      const items = CART.getItems();
+      const container = document.getElementById('cart-content');
+      
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="empty-cart">
+            <div class="empty-icon">🛒</div>
+            <p>购物车还是空的</p>
+            <a href="index.html" class="btn-primary" style="display:inline-block;width:auto;padding:12px 32px;text-decoration:none">去逛逛</a>
+          </div>`;
+        document.getElementById('checkout-bar').style.display = 'none';
+        document.getElementById('clear-btn').style.display = 'none';
+        document.getElementById('item-count-title').textContent = '';
+        return;
+      }
+
+      document.getElementById('clear-btn').style.display = 'block';
+      document.getElementById('checkout-bar').style.display = 'block';
+
+      const count = CART.getCount();
+      const total = CART.getTotal();
+      document.getElementById('item-count-title').textContent = '(' + count + ')';
+      document.getElementById('total-count').textContent = count;
+      document.getElementById('bottom-total').textContent = '¥' + total;
+
+      let html = '';
+      items.forEach(function(item) {
+        const product = MOCK.products.find(function(p) { return p.id === item.productId; });
+        if (!product) return;
+        const merchant = MOCK.merchants.find(function(m) { return m.id === product.merchantId; });
+        const subtotal = product.price * item.qty;
+
+        html += `
+          <div class="cart-item" id="ci-${product.id}">
+            <div class="cart-item-emoji">${product.emoji}</div>
+            <div class="cart-item-body">
+              <div class="cart-item-name">${product.name}</div>
+              <div class="cart-item-sub">${merchant ? merchant.name : ''}</div>
+              <div class="cart-item-row">
+                <span class="item-price">¥${subtotal}</span>
+                <div class="item-qty-ctrl">
+                  <button onclick="changeItemQty('${product.id}', -1)">−</button>
+                  <span class="qty-num" id="qty-${product.id}">${item.qty}</span>
+                  <button onclick="changeItemQty('${product.id}', 1)">+</button>
+                </div>
+              </div>
+            </div>
+            <button class="remove-btn" onclick="removeItem('${product.id}')" title="删除">×</button>
+          </div>`;
+      });
+
+      // 合计卡片
+      html += `
+        <div class="cart-summary">
+          <div class="summary-row"><span>商品合计</span><span>¥${total}</span></div>
+          <div class="summary-row"><span>平台服务费</span><span>¥0</span></div>
+          <div class="summary-total"><span>实付金额</span><span class="summary-total-val">¥${total}</span></div>
+        </div>
+        <div class="card card-body" style="background:linear-gradient(135deg,#FFF0F9,#F3E8FF)">
+          <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:6px">🎫 资产说明</div>
+          <div style="font-size:13px;color:var(--text);line-height:1.8">付款成功后，代金券将即时到账至「我的资产」。在线下活动现场向工作人员出示核销二维码即可领取实物。</div>
+        </div>`;
+
+      container.innerHTML = html;
+    }
+
+    function changeItemQty(productId, delta) {
+      const items = CART.getItems();
+      const item = items.find(function(i) { return i.productId === productId; });
+      if (!item) return;
+      const newQty = item.qty + delta;
+      if (newQty <= 0) {
+        removeItem(productId);
+        return;
+      }
+      CART.updateQty(productId, newQty);
+      renderCart();
+      CART.refreshBadge();
+    }
+
+    function removeItem(productId) {
+      CART.removeItem(productId);
+      renderCart();
+      CART.refreshBadge();
+    }
+
+    function confirmClear() {
+      if (confirm('确定要清空购物车吗？')) {
+        CART.clear();
+        renderCart();
+        CART.refreshBadge();
+      }
+    }
+
+    function goCheckout() {
+      _navigate('checkout.html?from=cart');
+    }
+
+    renderCart();
+    CART.refreshBadge();
+  </script>
+
+</body>
+</html>

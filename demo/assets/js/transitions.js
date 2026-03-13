@@ -8,6 +8,10 @@
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         document.documentElement.style.opacity = '1';
+        // 刷新购物车角标（CART 在 mock.js 中定义，所有引入了 mock.js 的页面都会更新）
+        if (typeof CART !== 'undefined' && typeof CART.refreshBadge === 'function') {
+          CART.refreshBadge();
+        }
       });
     });
   });

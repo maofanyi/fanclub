@@ -79,22 +79,39 @@
 
   <script>
     const params = new URLSearchParams(location.search);
-    const pid = params.get('id') || 'p001';
-    const qty = parseInt(params.get('qty')) || 1;
+    const fromCart = params.get('from') === 'cart';
     const payMethod = params.get('pay') || 'wallet';
-    const product = MOCK.products.find(p => p.id === pid);
-
     const payNames = { wallet:'钱包余额', alipay:'支付宝', wechat:'微信支付' };
     const orderId = 'ord' + Date.now().toString().slice(-10);
 
-    if (product) {
-      document.getElementById('o-name').textContent = product.emoji + ' ' + product.name;
-      document.getElementById('o-qty').textContent = qty + ' 件';
-      document.getElementById('o-total').textContent = '¥' + (product.price * qty);
+    if (fromCart) {
+      // 购物车结算模式
+      const cartTotal = params.get('total') || CART.getTotal();
+      const cartItems = CART.getItems();
+      const names = cartItems.map(function(item) {
+        const p = MOCK.products.find(function(x) { return x.id === item.productId; });
+        return p ? (p.emoji + ' ' + p.name + ' ×' + item.qty) : '';
+      }).filter(Boolean);
+      document.getElementById('o-name').textContent = '购物车结算 (' + cartItems.length + ' 件商品)';
+      document.getElementById('o-qty').textContent = CART.getCount() + ' 件';
+      document.getElementById('o-total').textContent = '¥' + cartTotal;
       document.getElementById('o-pay').textContent = payNames[payMethod] || payMethod;
       document.getElementById('o-id').textContent = orderId;
-      document.getElementById('voucher-info').textContent =
-        product.emoji + ' ' + product.name + ' ×' + qty + ' 已加入您的资产';
+      document.getElementById('voucher-info').textContent = names.join(' | ') + ' 已加入您的资产';
+      CART.clear(); // 清空购物车
+    } else {
+      const pid = params.get('id') || 'p001';
+      const qty = parseInt(params.get('qty')) || 1;
+      const product = MOCK.products.find(function(p) { return p.id === pid; });
+      if (product) {
+        document.getElementById('o-name').textContent = product.emoji + ' ' + product.name;
+        document.getElementById('o-qty').textContent = qty + ' 件';
+        document.getElementById('o-total').textContent = '¥' + (product.price * qty);
+        document.getElementById('o-pay').textContent = payNames[payMethod] || payMethod;
+        document.getElementById('o-id').textContent = orderId;
+        document.getElementById('voucher-info').textContent =
+          product.emoji + ' ' + product.name + ' ×' + qty + ' 已加入您的资产';
+      }
     }
 
     // 彩纸动画

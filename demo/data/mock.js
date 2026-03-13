@@ -269,3 +269,72 @@ const DEMO_STATE = {
     sessionStorage.setItem('fanclub_' + key, JSON.stringify(val));
   }
 };
+
+// 购物车（localStorage，跨页面持久化）
+const CART = {
+  _key: 'fanclub_cart',
+
+  getItems() {
+    try { return JSON.parse(localStorage.getItem(this._key)) || []; } catch { return []; }
+  },
+
+  _save(items) {
+    localStorage.setItem(this._key, JSON.stringify(items));
+  },
+
+  addItem(productId, qty) {
+    qty = qty || 1;
+    const items = this.getItems();
+    const idx = items.findIndex(i => i.productId === productId);
+    const product = MOCK.products.find(p => p.id === productId);
+    if (!product) return items;
+    if (idx >= 0) {
+      items[idx].qty = Math.min(items[idx].qty + qty, product.stock);
+    } else {
+      items.push({ productId, qty: Math.min(qty, product.stock) });
+    }
+    this._save(items);
+    return items;
+  },
+
+  removeItem(productId) {
+    const items = this.getItems().filter(i => i.productId !== productId);
+    this._save(items);
+    return items;
+  },
+
+  updateQty(productId, qty) {
+    const items = this.getItems();
+    const idx = items.findIndex(i => i.productId === productId);
+    if (idx >= 0) {
+      if (qty <= 0) { items.splice(idx, 1); }
+      else { items[idx].qty = qty; }
+    }
+    this._save(items);
+    return items;
+  },
+
+  clear() {
+    localStorage.removeItem(this._key);
+  },
+
+  getCount() {
+    return this.getItems().reduce(function(sum, i) { return sum + i.qty; }, 0);
+  },
+
+  getTotal() {
+    return this.getItems().reduce(function(sum, i) {
+      const p = MOCK.products.find(function(x) { return x.id === i.productId; });
+      return sum + (p ? p.price * i.qty : 0);
+    }, 0);
+  },
+
+  // 更新页面里所有购物车角标
+  refreshBadge() {
+    const count = this.getCount();
+    document.querySelectorAll('.cart-nav-badge').forEach(function(el) {
+      el.textContent = count > 0 ? (count > 99 ? '99+' : count) : '';
+      el.style.display = count > 0 ? 'flex' : 'none';
+    });
+  }
+};
